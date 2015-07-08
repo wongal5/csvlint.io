@@ -23,7 +23,6 @@ class PackageController < ApplicationController
     redirect_to root_path and return if io.nil?
 
     if params[:format] == "json"
-      byebug
       @package = Package.create
       @package.delay.create_package(io, @schema_url, @schema_file_field, @schema)
     else
