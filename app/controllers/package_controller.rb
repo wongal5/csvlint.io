@@ -23,11 +23,12 @@ class PackageController < ApplicationController
     redirect_to root_path and return if io.nil?
 
     if params[:format] == "json"
+      byebug
       @package = Package.create
-      @package.delay.create_package(io, @schema_url, @schema)
+      @package.delay.create_package(io, @schema_url, @schema_file_field, @schema)
     else
       package = Package.create
-      package.create_package(io, @schema_url, @schema)
+      package.create_package(io, @schema_url, @schema_file_field, @schema)
 
       if package.validations.count == 1
         redirect_to validation_path(package.validations.first)
@@ -96,11 +97,12 @@ class PackageController < ApplicationController
       end
       # Get schema URL from parameters
       @schema_url = params[:schema_url]
+      @schema_file_field = params[:schema_data]
     end
 
     def check_for_package
       sources = params[:urls].presence || params[:files].presence
-      Package.create_package( sources, params[:schema_url], @schema )
+      Package.create_package( sources, params[:schema_url], params[:schema_file], @schema )
     end
 
     def read_files(data)

@@ -15,7 +15,7 @@ class Validation
 
   belongs_to :package
 
-  def self.validate(io, schema_url = nil, schema = nil, dialect = nil)
+  def self.validate(io, schema_url = nil, schema_file_field = nil, schema = nil, dialect = nil)
     if io.respond_to?(:tempfile)
       filename = io.original_filename
       csv = File.new(io.tempfile)
@@ -27,7 +27,7 @@ class Validation
     end
     # Validate
     validator = Csvlint::Validator.new( io, dialect, schema && schema.fields.empty? ? nil : schema )
-    check_schema(validator, schema) unless schema_url.blank?
+    check_schema(validator, schema) unless (schema_url.blank? && schema_file_field.blank?)
     check_dialect(validator, dialect) unless dialect.blank?
     state = "valid"
     state = "warnings" unless validator.warnings.empty?
@@ -100,24 +100,24 @@ class Validation
     }
   end
 
-  def self.create_validation(io, schema_url = nil, schema = nil)
+  def self.create_validation(io, schema_url = nil, schema_file_field = nil, schema = nil)
     if io.class == String
       validation = Validation.find_or_initialize_by(url: io)
     else
       validation = Validation.create
     end
-    validation.validate(io, schema_url, schema)
+    validation.validate(io, schema_url, schema_file_field, schema)
     validation
   end
 
-  def validate(io, schema_url = nil, schema = nil)
-    validation = Validation.validate(io, schema_url, schema)
+  def validate(io, schema_url = nil, schema_file_field = nil, schema = nil)
+    validation = Validation.validate(io, schema_url, schema_file_field, schema)
     self.update_attributes(validation)
   end
 
   def update_validation(dialect = nil)
     loaded_schema = schema ? Csvlint::Schema.load_from_json_table(schema.url) : nil
-    validation = Validation.validate(self.url || self.csv, schema.try(:url), loaded_schema, dialect)
+    validation = Validation.validate(self.url || self.csv, schema.try(:url), nil, loaded_schema, dialect)
     self.update_attributes(validation)
     self
   end
