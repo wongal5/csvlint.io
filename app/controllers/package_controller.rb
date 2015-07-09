@@ -24,7 +24,7 @@ class PackageController < ApplicationController
 
     if params[:format] == "json"
       @package = Package.create
-      @package.delay.create_package(io, @schema_url, @schema_file_field, @schema)
+      @package.delay.create_package(io, @schema_url, @schema_file_field.read, @schema)
     else
       package = Package.create
       package.create_package(io, @schema_url, @schema_file_field, @schema)
@@ -96,7 +96,7 @@ class PackageController < ApplicationController
       end
       # Get schema URL from parameters
       @schema_url = params[:schema_url]
-      @schema_file_field = params[:schema_data]
+      @schema_file_field = params[:schema_file]
     end
 
     def check_for_package
