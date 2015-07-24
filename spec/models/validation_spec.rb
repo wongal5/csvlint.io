@@ -3,6 +3,12 @@ require "spec_helper"
 
 describe Validation, type: :model do
 
+  it "should create a mongo DB entry" do
+    @file = mock_upload('csvs/valid.csv')
+    validation = Validation.create_validation(@file)
+    byebug
+  end
+
   describe '#expiry_fields' do
     it "should assign a TTL field to any validation formed from an uploaded CSV file" do
       @file = mock_upload('csvs/valid.csv')
