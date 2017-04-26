@@ -8,17 +8,12 @@ end
 
 Then(/^my file should be persisted in the database$/) do
   Validation.count.should == 1
-  Validation.first.filename.should == File.basename(@file)
+  Validation.first.filename.should =~ /#{File.basename(@file)}/
 end
 
 Then(/^"(.*?)" should be persisted in the database$/) do |filename|
   Validation.count.should == 1
-  Validation.first.filename.should == filename
-end
-
-
-Then(/^my file should be saved in the database$/) do
-  Validation.first.csv.class.should == Tempfile
+  Validation.first.filename.should =~ /#{filename}/
 end
 
 Then(/^my file should not be saved in the database$/) do
